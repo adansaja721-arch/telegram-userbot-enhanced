@@ -22,8 +22,8 @@ pkg install python git
 
 ### 2. Clone Repository
 ```bash
-git clone https://github.com/fitrisaja726-arch/telegram-userbot.git
-cd telegram-userbot
+git clone https://github.com/adansaja721-arch/telegram-userbot-enhanced.git
+cd telegram-userbot-enhanced
 ```
 
 ### 3. Install Requirements
