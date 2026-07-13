@@ -1,7 +1,7 @@
 """
 TELEGRAM USERBOT DENGAN GEMINI 3.1 AI - ADVANCED VERSION
 Single file complete bot - ready untuk Termux
-IMPROVED: Instant message send + Smart 3-chat cycle + Real-time responses
+IMPROVED: Real-time send + Natural typing delay + Topic-specific + Instant exit
 """
 
 import asyncio
@@ -22,11 +22,11 @@ load_dotenv()
 API_ID = int(os.getenv('TELEGRAM_API_ID', '0'))
 API_HASH = os.getenv('TELEGRAM_API_HASH', 'change_me')
 GEMINI_KEY = os.getenv('GEMINI_API_KEY', 'change_me')
-TARGET_GROUP = os.getenv('TARGET_GROUP', 'interlinkIDchat')
-TOPIC_ID = int(os.getenv('INDONESIA_TOPIC_ID', '26251'))
+TARGET_GROUP = 'interlinkIDchat'  # HARDCODED - Jangan masuk global chat
+TOPIC_ID = 26251  # HARDCODED - Topic ID untuk Indonesia
 
 # Bot behavior - FIXED CYCLE
-DELAY_MIN = 15  # Delay antar reply dalam cycle
+DELAY_MIN = 15  # Delay antar reply dalam cycle (NATURAL TYPING)
 DELAY_MAX = 30
 REST_MIN = 110  # 1:50
 REST_MAX = 130  # 2:10
@@ -105,8 +105,9 @@ def print_banner():
     """Print bot banner"""
     print(f"\n{C.CYAN}{C.BOLD}" + "="*80)
     print(f"        🤖 TELEGRAM USERBOT DENGAN GEMINI 3.1 AI 🤖")
-    print(f"        Real-time Send • 3-Chat Cycle • Instant Exit • Live Responses")
+    print(f"        Natural Typing • Topic-Specific • 3-Chat Cycle • Real-time Send")
     print(f"="*80 + f"{C.RESET}\n")
+    print(f"{C.GREEN}📍 Target: {TARGET_GROUP} | Topic: {TOPIC_ID}{C.RESET}\n")
 
 def validate_config():
     """Validate config"""
@@ -250,12 +251,11 @@ async def handle_message(event):
         queue_size = len(message_queue)
         print(f"   {C.MAGENTA}└─ 📦 Queue: {queue_size} messages{C.RESET}")
         
-        # TRIGGER: Jika queue >= 3 DAN tidak sedang process DAN sudah cukup waktu sejak cycle terakhir
+        # TRIGGER: Jika queue >= 3 DAN tidak sedang process
         current_time = datetime.now()
         time_since_last_cycle = (current_time - last_cycle_time).total_seconds()
         
         if queue_size >= 3 and not is_processing and time_since_last_cycle > 5:
-            # Trigger cycle asynchronously (non-blocking)
             asyncio.create_task(start_reply_cycle())
     
     except Exception as e:
@@ -265,7 +265,7 @@ async def handle_message(event):
 # ==================== REPLY CYCLE LOGIC ====================
 
 async def start_reply_cycle():
-    """Start 3-message reply cycle - INSTANT SEND"""
+    """Start 3-message reply cycle - NATURAL TYPING DELAY"""
     global is_processing, message_queue, last_activity, last_cycle_time
     
     if is_processing or len(message_queue) < 3:
@@ -279,7 +279,7 @@ async def start_reply_cycle():
         selected = message_queue[:3]
         
         print(f"\n{C.BOLD}{C.BLUE}{'='*80}{C.RESET}")
-        print(f"{C.BOLD}🤖 CYCLE: Balas 3 Messages{C.RESET}")
+        print(f"{C.BOLD}🤖 CYCLE: Balas 3 Messages (dengan typing natural){C.RESET}")
         print(f"{C.BOLD}{C.BLUE}{'='*80}{C.RESET}\n")
         
         # Build context
@@ -290,7 +290,7 @@ async def start_reply_cycle():
                 'text': msg['text']
             })
         
-        # Balas ketiga message dengan delay
+        # Balas ketiga message dengan delay NATURAL (typing)
         for idx, msg in enumerate(selected, 1):
             if should_exit:
                 print(f"{C.YELLOW}[EXIT] Stopping cycle...{C.RESET}")
@@ -304,29 +304,34 @@ async def start_reply_cycle():
                 # Generate response
                 reply_text, is_fallback = generate_ai_response(sender_name, user_text, context_for_ai)
                 
-                delay = random.randint(DELAY_MIN, DELAY_MAX)
-                print(f"   {C.CYAN}└─ 🤔 Replying to {sender_name}... ({delay}s typing){C.RESET}")
+                # NATURAL TYPING DELAY (15-30 detik)
+                typing_delay = random.randint(DELAY_MIN, DELAY_MAX)
+                print(f"   {C.CYAN}└─ ⌨️  Mengetik ({typing_delay}s)...{C.RESET}")
                 
-                # TYPING ACTION - interruptible
+                # TYPING ACTION dengan delay yang natural dan interruptible
                 try:
                     async with client.action(TARGET_GROUP, 'typing'):
-                        for _ in range(delay):
+                        for remaining in range(typing_delay, 0, -1):
                             if should_exit:
                                 break
+                            # Print progress setiap 5 detik
+                            if remaining % 5 == 0 and remaining != typing_delay:
+                                print(f"       {C.CYAN}└─ {remaining}s lagi...{C.RESET}")
                             await asyncio.sleep(1)
-                except:
-                    for _ in range(delay):
+                except Exception as e:
+                    logger.warning(f"Typing action error: {e}")
+                    # Fallback jika typing action error
+                    for _ in range(typing_delay):
                         if should_exit:
                             break
                         await asyncio.sleep(1)
                 
-                # SEND IMMEDIATELY - non-blocking
+                # SEND MESSAGE - setelah delay selesai
                 if not should_exit:
-                    # Send as reply to the message
                     try:
                         await event.reply(reply_text)
                     except:
-                        # Fallback: send sebagai independent message
+                        # Fallback: send sebagai message ke topic
                         await client.send_message(TARGET_GROUP, reply_text, reply_to=TOPIC_ID)
                     
                     response_type = "FALLBACK" if is_fallback else "AI"
@@ -354,31 +359,35 @@ async def start_reply_cycle():
         
         stats['cycles_completed'] += 1
         
-        # REST PERIOD - interruptible
+        # REST PERIOD - NATURAL (dengan typing indicator juga)
         rest_duration = random.randint(REST_MIN, REST_MAX)
         minutes = rest_duration // 60
         seconds = rest_duration % 60
-        print(f"{C.YELLOW}⏸️  RESTING for {minutes}m {seconds}s (Ctrl+C untuk exit){C.RESET}")
+        print(f"{C.YELLOW}⏸️  ISTIRAHAT {minutes}m {seconds}s (Ctrl+C untuk exit){C.RESET}")
         
-        for _ in range(rest_duration):
+        for remaining in range(rest_duration, 0, -1):
             if should_exit:
-                print(f"{C.YELLOW}[EXIT] Rest interrupted{C.RESET}\n")
+                print(f"{C.YELLOW}[EXIT] Istirahat interrupted{C.RESET}\n")
                 break
+            # Print progress setiap 30 detik
+            if remaining % 30 == 0 and remaining != rest_duration:
+                mins = remaining // 60
+                secs = remaining % 60
+                print(f"   {C.CYAN}└─ {mins}m {secs}s lagi...{C.RESET}")
             await asyncio.sleep(1)
         
         if not should_exit:
-            print(f"{C.GREEN}🌅 BOT WOKE UP{C.RESET}\n")
+            print(f"{C.GREEN}🌅 BOT WOKE UP - Siap melanjutkan!{C.RESET}\n")
             
             # Check jika ada queue yang masuk selama rest
             if len(message_queue) >= 3:
-                print(f"{C.CYAN}New messages in queue, starting new cycle...{C.RESET}")
-                # Recursive call - akan trigger cycle baru
+                print(f"{C.CYAN}➡️  Ada message baru, mulai cycle...{C.RESET}\n")
                 await start_reply_cycle()
             else:
                 # Check silence untuk smart open
                 time_silent = (datetime.now() - last_activity).total_seconds()
                 if time_silent > SILENCE:
-                    print(f"{C.YELLOW}[SMART OPEN] Sepi {int(time_silent)}s, buka obrolan...{C.RESET}")
+                    print(f"{C.YELLOW}[SMART OPEN] Grup sepi {int(time_silent)}s{C.RESET}")
                     await smart_open()
     
     except Exception as e:
@@ -391,18 +400,35 @@ async def start_reply_cycle():
 # ==================== SMART OPENING ====================
 
 async def smart_open():
-    """Send smart opening message - INSTANT"""
+    """Send smart opening message - DENGAN TYPING"""
     try:
         if should_exit:
             return
         
-        msg = random.choice(OPENING_MESSAGES)
-        await client.send_message(TARGET_GROUP, msg, reply_to=TOPIC_ID)
-        print(f"{C.GREEN}📢 [OPENING] {msg}{C.RESET}\n")
-        logger.info(f"Smart opening sent: {msg}")
+        # TYPING SEBELUM SEND
+        typing_delay = random.randint(8, 15)
+        print(f"   {C.CYAN}└─ ⌨️  Mengetik opening ({typing_delay}s)...{C.RESET}")
         
-        global last_activity
-        last_activity = datetime.now()
+        try:
+            async with client.action(TARGET_GROUP, 'typing'):
+                for _ in range(typing_delay):
+                    if should_exit:
+                        break
+                    await asyncio.sleep(1)
+        except:
+            for _ in range(typing_delay):
+                if should_exit:
+                    break
+                await asyncio.sleep(1)
+        
+        if not should_exit:
+            msg = random.choice(OPENING_MESSAGES)
+            await client.send_message(TARGET_GROUP, msg, reply_to=TOPIC_ID)
+            print(f"{C.GREEN}📢 [OPENING] {msg}{C.RESET}\n")
+            logger.info(f"Smart opening sent: {msg}")
+            
+            global last_activity
+            last_activity = datetime.now()
     except Exception as e:
         logger.error(f"Smart opening failed: {e}")
 
@@ -441,7 +467,6 @@ def signal_handler(signum, frame):
     logger.warning(f"Received signal {signum}, instant shutdown...")
     print(f"\n{C.RED}🛑 INSTANT SHUTDOWN{C.RESET}\n")
     should_exit = True
-    # Force exit
     sys.exit(0)
 
 # ==================== MAIN ====================
@@ -458,7 +483,7 @@ async def main():
         sys.exit(1)
     
     logger.info("="*80)
-    logger.info("BOT STARTING")
+    logger.info(f"BOT STARTING - Target: {TARGET_GROUP} | Topic: {TOPIC_ID}")
     logger.info("="*80)
     
     try:
@@ -467,8 +492,8 @@ async def main():
         
         logger.info("✅ Connected successfully!")
         print(f"{C.GREEN}✅ USERBOT ACTIVE - LISTENING FOR MESSAGES{C.RESET}\n")
-        print(f"{C.CYAN}LOGIC: Tunggu 3 chat → Balas instant dengan delay → Istirahat → Repeat{C.RESET}")
-        print(f"{C.CYAN}Press Ctrl+C to instant shutdown{C.RESET}\n")
+        print(f"{C.CYAN}LOGIC: Tunggu 3 chat → Mengetik natural 15-30s → Balas → Istirahat 1:50-2:10 → Repeat{C.RESET}")
+        print(f"{C.CYAN}Press Ctrl+C untuk instant shutdown{C.RESET}\n")
         
         # Start smart opening task
         smart_task = asyncio.create_task(smart_opening_task())
