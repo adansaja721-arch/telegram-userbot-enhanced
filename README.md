@@ -1,14 +1,52 @@
-# 🤖 TELEGRAM USERBOT DENGAN GEMINI 3.1 AI
+# 🤖 TELEGRAM USERBOT DENGAN GEMINI 3.1 AI - INDONESIA FOKUS 🇮🇩
 
 ## 📌 OVERVIEW
 
-Bot ini adalah **Userbot Telegram Cerdas** yang:
-- ✅ **MENAMPILKAN SEMUA CHAT** dari grup dalam real-time
-- ✅ Membalas **1-3 pesan random** dengan delay 30-45 detik
-- ✅ **REST 1:50 - 2:20** setelah balas (untuk humanize)
+Bot ini adalah **Userbot Telegram Indonesia-Only** yang:
+- ✅ **HANYA BALAS DI TOPIC INDONESIA (#26251)**
+- ✅ **STRICT BAHASA INDONESIA** - Tidak balas bahasa lain
+- ✅ Balas **EXACTLY 3 MESSAGES** dengan delay 15-30 detik antar chat
+- ✅ **REST 1:50 - 2:10** setelah balas (humanize)
 - ✅ **BUKA PERCAKAPAN** jika grup sepi > 60 detik
 - ✅ Menggunakan **Gemini 3.1 AI** untuk respons natural
+- ✅ **INSTANT MESSAGE SEND** - Real-time di group
 - ✅ **MUDAH DIJALANKAN DI TERMUX** (single file)
+
+---
+
+## 🔒 FITUR KEAMANAN INDONESIA
+
+### 1. **Strict Topic Filtering**
+```
+✅ Hanya terima message dari TOPIC_ID #26251
+❌ Reject message dari topic lain atau global
+```
+
+### 2. **Language Detection**
+```python
+# Bot detects:
+- ✅ Indonesian (Bahasa Indonesia)
+- ❌ English
+- ❌ Arabic / Persian
+- ❌ Cyrillic (Russian, dsb)
+- ❌ Chinese / Japanese / Korean
+```
+
+Jika user chat bahasa lain → **SKIP LANGSUNG**
+
+### 3. **AI System Prompts - FORCED INDONESIA**
+```
+"PENTING: HANYA balas dalam BAHASA INDONESIA"
+"WAJIB gunakan Bahasa Indonesia dalam semua reply"
+"Jangan berpindah ke bahasa lain apapun"
+```
+
+Jika AI menghasilkan bahasa lain → Gunakan fallback Indonesia
+
+### 4. **Fallback Responses - GUARANTEED INDONESIA**
+```
+"Wkwk setuju" "Haha iya" "Iyaa" "Amen" "Betul"
+```
 
 ---
 
@@ -57,166 +95,138 @@ python bot.py
 
 ---
 
-## 📊 FLOW BOT - STEP BY STEP
+## 📊 LOGIC BOT - 3-CHAT CYCLE
 
-### Skenario: 5 pesan masuk dalam waktu singkat
+### Skenario: 5 pesan masuk dalam waktu singkat (HANYA dari #26251)
 
 ```
-[15:00:00] BOT START ✅
+[19:00:00] BOT START ✅
 
-[15:00:05] 💬 MESSAGE 1 - Budi: "Halo bro"
-[15:00:05] [DISPLAY] Budi: Halo bro
-[15:00:05] 📦 Buffer: 1 messages
+[19:00:05] 💬 MESSAGE 1 - Budi: "Halo bro"
+[19:00:05] [DISPLAY] Topic #26251 ✅ Bahasa Indonesia ✅
+[19:00:05] 📦 Queue: 1 messages
 
-[15:00:10] 💬 MESSAGE 2 - Andi: "Apa kabar?"
-[15:00:10] [DISPLAY] Andi: Apa kabar?
-[15:00:10] 📦 Buffer: 2 messages
+[19:00:10] 💬 MESSAGE 2 - Andi: "Apa kabar?"
+[19:00:10] [DISPLAY] Topic #26251 ✅ Bahasa Indonesia ✅
+[19:00:10] 📦 Queue: 2 messages
 
-[15:00:15] 💬 MESSAGE 3 - Citra: "Sepi yah"
-[15:00:15] [DISPLAY] Citra: Sepi yah
-[15:00:15] 📦 Buffer: 3 messages
-[15:00:15] ⚠️ Buffer >= MIN_REPLY, START REPLY SEQUENCE!
+[19:00:15] 💬 MESSAGE 3 - Citra: "Sepi yah"
+[19:00:15] [DISPLAY] Topic #26251 ✅ Bahasa Indonesia ✅
+[19:00:15] 📦 Queue: 3 messages
+[19:00:15] ⚠️ Queue >= 3, TRIGGER CYCLE!
 
-════════════════════════════════════════════════════════════════════════════════
-🤖 REPLYING TO 2 MESSAGES (Random 1-3)
-════════════════════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════
+🤖 CYCLE: Balas 3 Messages (Indonesia Only) 🇮🇩
+════════════════════════════════════════════════════════════
 
-[15:00:15] Pilih random 2 messages dari buffer
-  → Selected: Budi & Citra
+[19:00:15] 🤔 Replying to Budi... (22s typing)
+[19:00:37] ✅ [REPLY/AI] Wkwk iya bro, gimana kabar?
 
-[15:00:15] 🤖 REPLY #1 - Budi: "Halo bro"
-[15:00:15]    └─ 🤔 Thinking... (38s) [typing indicator on]
-[15:00:53]    └─ ✅ [REPLY] Halo juga bro! 👋
+[19:00:37] 🤔 Replying to Andi... (18s typing)
+[19:00:55] ✅ [REPLY/AI] Alhamdulillah sehat bro
 
-[15:00:53] 🤖 REPLY #2 - Citra: "Sepi yah"
-[15:00:53]    └─ 🤔 Thinking... (35s) [typing indicator on]
-[15:01:28]    └─ ✅ [REPLY] Iya bro, gas ngobrol aja
+[19:00:55] 🤔 Replying to Citra... (25s typing)
+[19:01:20] ✅ [REPLY/AI] Iya bro sepi, gas ngobrol!
 
-════════════════════════════════════════════════════════════════════════════════
-✅ ALL REPLIES SENT
-════════════════════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════
+✅ CYCLE COMPLETE
+════════════════════════════════════════════════════════════
 
-[15:01:28] ⏸️ BOT RESTING for 1m 58s
-  (Sleeping 118 detik untuk terlihat human)
+[19:01:20] ⏸️ RESTING for 1m 55s
+[19:03:15] 🌅 BOT WOKE UP
 
-[15:03:26] 🌅 BOT WOKE UP - Ready for next batch!
+[19:03:15] Check: Grup sepi > 60s? NO!
+   → Continue monitoring
 
-[15:03:26] Check: Grup sepi > 60s? YES!
-  [SMART OPEN] Woi pada ngapain nih? Sepi banget
+[19:03:20] 💬 MESSAGE 4 - Doni: "Wkwk iya"
+[19:03:20] [DISPLAY] Topic #26251 ✅ Bahasa Indonesia ✅
+[19:03:20] 📦 Queue: 1 messages
 
-[15:03:30] 💬 MESSAGE 4 - Doni: "Wkwk iya"
-[15:03:30] [DISPLAY] Doni: Wkwk iya
-[15:03:30] 📦 Buffer: 2 messages (Andi punya + ini)
+[19:03:25] 💬 MESSAGE 5 - Eka: "Gas lanjut"
+[19:03:25] [DISPLAY] Topic #26251 ✅ Bahasa Indonesia ✅
+[19:03:25] 📦 Queue: 2 messages
 
-[15:03:35] 💬 MESSAGE 5 - Eka: "Gas lanjut"
-[15:03:35] [DISPLAY] Eka: Gas lanjut
-[15:03:35] 📦 Buffer: 3 messages
-[15:03:35] ⚠️ TRIGGER REPLY SEQUENCE AGAIN...
-(Cycle repeats)
+(Tunggu message ke-3 untuk trigger cycle...)
 ```
 
 ---
 
-## ⚙️ KONFIGURASI BEHAVIOR
+## 🔍 FILTERING LOGIC
+
+### Message di-SKIP jika:
+
+1. **❌ Wrong Topic**
+   ```
+   Pesan dari topic lain atau global
+   LOG: "Skipped: Wrong topic X (should be 26251)"
+   ```
+
+2. **❌ Non-Indonesian Language**
+   ```
+   Bahasa: English, Arabic, Russian, Chinese, dll
+   LOG: "Skipped non-Indonesian from User: text..."
+   ```
+
+3. **❌ Skip Keywords**
+   ```
+   Keywords: admin, moderator, warning, bot, report, spam, banned
+   ```
+
+4. **❌ Bot Messages**
+   ```
+   Message dari bot lain
+   ```
+
+5. **❌ Terlalu Pendek**
+   ```
+   < 3 karakter
+   ```
+
+### Message di-TERIMA jika:
+
+✅ Dari topic #26251  
+✅ Bahasa Indonesia  
+✅ Tidak ada skip keywords  
+✅ Dari user (bukan bot)  
+✅ Minimal 3 karakter  
+
+---
+
+## ⚙️ KONFIGURASI
 
 Edit di `.env`:
 
 ```env
-# Jumlah pesan yang dibalas sebelum REST (1-3)
-MIN_MESSAGES_REPLY=1      # Minimal 1
-MAX_MESSAGES_REPLY=3      # Maksimal 3
+# Delay antar reply dalam cycle (15-30 detik)
+REPLY_DELAY_MIN=15
+REPLY_DELAY_MAX=30
 
-# Durasi REST dalam detik (1:50-2:20 = 110-140)
-REST_DURATION_MIN=110     # 1 menit 50 detik
-REST_DURATION_MAX=140     # 2 menit 20 detik
+# Rest period (1:50 - 2:10 = 110-130 detik)
+REST_DURATION_MIN=110
+REST_DURATION_MAX=130
 
-# Delay antar reply (30-45 detik)
-REPLY_DELAY_MIN=30        # Minimum 30s
-REPLY_DELAY_MAX=45        # Maximum 45s
-
-# Trigger smart open jika sepi (detik)
-SILENCE_THRESHOLD=60      # > 60 detik silent = buka obrolan
+# Smart open trigger (60 detik sepi)
+SILENCE_THRESHOLD=60
 ```
 
 ---
 
-## 🔍 PENJELASAN DETIL
+## 📊 STATISTICS
 
-### 1. Message Display (SEMUA CHAT TERLIHAT)
+Bot menampilkan stats saat shutdown:
+
 ```
-[15:00:05] Budi: Halo bro
-   └─ 📦 Buffer: 1 messages
+📊 BOT STATISTICS
+═════════════════════════════════════════
+⏱️  Uptime: 2d 3h 45m 30s
+📨 Messages Received: 150
+✅ Messages Replied: 45
+🚫 Messages Skipped: 105
+⏸️  Reply Rate: 30.0%
+🔄 Cycles Completed: 15
+⚠️  Errors: 2
+═════════════════════════════════════════
 ```
-**Setiap pesan masuk LANGSUNG ditampilkan** ke console. Tidak ada yang terlewat!
-
-### 2. Buffer System
-```
-Pesan 1 → Buffer
-Pesan 2 → Buffer
-Pesan 3 → Buffer (≥ MIN_REPLY, trigger reply)
-```
-
-**Buffer** menyimpan semua pesan yang belum dibalas. Ketika jumlah ≥ MIN_REPLY, bot mulai membalas.
-
-### 3. Random Reply Selection
-```
-Pesan di buffer: [Msg1, Msg2, Msg3]
-Random count: 2 (antara MIN=1 dan MAX=3)
-Selected: [Msg1, Msg3]
-Remaining: [Msg2]
-```
-
-Bot **memilih random** berapa pesan yang akan dibalas, ini menghindari deteksi bot.
-
-### 4. Thinking Delay (30-45s)
-```
-[15:00:15] 🤔 Thinking... (38s)
-[Bot shows typing indicator]
-[15:00:53] Send reply
-```
-
-Bot menampilkan typing indicator selama random 30-45 detik. Terlihat seperti human yang sedang mengetik!
-
-### 5. Rest Period (110-140s = 1:50 - 2:20)
-```
-[15:01:28] ⏸️ BOT RESTING for 1m 58s
-[Sleep/rest selama 118 detik]
-[15:03:26] 🌅 BOT WOKE UP
-```
-
-**PENTING**: Rest ini membuat bot terlihat human. Moderator akan suspicious jika bot terus balas langsung tanpa istirahat!
-
-### 6. Smart Opening
-```
-[15:03:26] Check: Grup sepi > 60s?
-YES → [SMART OPEN] Woi pada ngapain nih? Sepi banget
-NO → Continue monitoring
-```
-
-Jika grup sepi > 60 detik, bot automatically send opening message untuk memulai percakapan.
-
----
-
-## 🤖 AI GENERATION
-
-Bot menggunakan **Gemini 3.1 Flash Lite** dengan:
-
-```python
-model='gemini-3.1-flash-lite'  # ⚡ Fast & smart
-temperature=0.88               # Kreativitas tinggi (0-1)
-max_output_tokens=75           # Respons pendek & natural
-```
-
-**System Prompts** (5 variasi):
-```
-1. "Kamu temen gaul. Balas pendek, santai, nyambung sama obrolan."
-2. "Jadi temen yang fun dan natural. Jangan formal atau membosankan."
-3. "Respond seperti teman yang lagi santai di grup. Keep it real."
-4. "Balas dengan energi dan sedikit humor. Jangan terlalu panjang."
-5. "Ngobrol seperti teman biasa. Santai, natural, dan straightforward."
-```
-
-**Kenapa multiple prompts?** Jika selalu sama, moderator/bot detector bisa identify pola bot!
 
 ---
 
@@ -225,11 +235,10 @@ max_output_tokens=75           # Respons pendek & natural
 Semua aktivitas di-log ke `logs/userbot.log`:
 
 ```
-2024-07-13 15:00:05 - INFO - Bot starting
-2024-07-13 15:00:15 - INFO - Reply #1/2 sent
-2024-07-13 15:00:48 - INFO - Bot resting for 118 seconds
-2024-07-13 15:01:28 - INFO - Reply #2/2 sent
-2024-07-13 15:03:26 - INFO - Smart opening sent
+2026-07-13 19:00:05 - INFO - BOT STARTING - INDONESIA FOKUS
+2026-07-13 19:00:10 - INFO - [INDONESIA] Reply to Budi: Wkwk iya bro
+2026-07-13 19:00:55 - INFO - [INDONESIA] Smart opening sent: Woi pada ngapain nih?
+2026-07-13 19:03:26 - WARNING - Skipped non-Indonesian from User: some non-ID text
 ```
 
 ---
@@ -237,41 +246,34 @@ Semua aktivitas di-log ke `logs/userbot.log`:
 ## 🛡️ SECURITY
 
 - ✅ **Credentials di .env** (tidak hardcoded)
-- ✅ **Skip deep replies** (hanya balas top-level)
-- ✅ **Skip keywords** (admin, moderator, warning, dll)
-- ✅ **Graceful shutdown** (Ctrl+C = clean exit)
+- ✅ **Strict topic filtering** (hanya #26251)
+- ✅ **Language detection** (hanya Indonesian)
+- ✅ **Skip keywords** (admin, moderator, dll)
+- ✅ **Skip bot messages**
+- ✅ **Graceful shutdown** (Ctrl+C = instant exit)
 - ✅ **Error handling** (jangan crash)
+- ✅ **Instant message send** (real-time di group)
 
 ---
 
 ## 🔧 TROUBLESHOOTING
 
-### Bot tidak konek ke Telegram
-```
-❌ Error: Connection failed
-```
-**Solusi:**
-- Check internet connection
-- Verify API_ID dan API_HASH di .env
-- Pastikan tidak ada proxy/firewall blocking
-
-### Gemini API error
-```
-❌ Error: Invalid API key
-```
-**Solusi:**
-- Get new API key di https://aistudio.google.com/app/apikey
-- Ensure API sudah enable
-- Update di .env dengan key baru
-
 ### Bot tidak balas pesan
-```
-Pesan masuk tapi tidak ada reply
-```
-**Solusi:**
-- Check buffer size: `📦 Buffer: X messages`
-- Verify MIN_MESSAGES_REPLY setting
-- Check logs: `cat logs/userbot.log`
+
+**Solusi checklist:**
+1. Check `.env` - pastikan TOPIC_ID benar (#26251)
+2. Check console output - apakah ada `🚫 Skip (non-Indonesian)`?
+3. Pastikan message dari grup yang benar
+4. Pastikan message dalam Bahasa Indonesia
+5. Check queue size: `📦 Queue: X messages`
+6. Check logs: `cat logs/userbot.log`
+
+### Bot balas bahasa selain Indonesia
+
+**Ini berarti:**
+- AI menghasilkan bahasa lain (bug Gemini)
+- Bot akan detect & gunakan fallback Indonesia
+- Check log: `AI generated non-Indonesian text`
 
 ---
 
@@ -279,8 +281,8 @@ Pesan masuk tapi tidak ada reply
 
 ```bash
 # Clone
-git clone https://github.com/fitrisaja726-arch/telegram-userbot.git
-cd telegram-userbot
+git clone https://github.com/adansaja721-arch/telegram-userbot-enhanced.git
+cd telegram-userbot-enhanced
 
 # Setup
 pip install -r requirements.txt
@@ -293,4 +295,17 @@ python bot.py
 
 ---
 
-**Made with ❤️ for Telegram automation**
+## 🎯 PENTING
+
+**Bot ini WAJIB:**
+- ✅ Hanya di grup Indonesia
+- ✅ Hanya balas dari topic #26251
+- ✅ Hanya gunakan Bahasa Indonesia
+- ✅ Tidak follow link global
+- ✅ Tidak berpindah ke bahasa lain
+
+**Jika melanggar → Bot auto-skip message tersebut**
+
+---
+
+**Made with ❤️ untuk Indonesia 🇮🇩**
